@@ -9,11 +9,18 @@ namespace Task_Planner.Services
 {
     public class Data_Manager
     {
-        private static string filePath = "tasks.json";
+        private static readonly string folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+        private static readonly string filePath = Path.Combine(folderPath, "tasks.json");
 
         public static void Save(List<TaskItem> tasks)
         {
-           var jsonString = JsonConvert.SerializeObject(tasks, Formatting.Indented);
+           if(!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+
+            var jsonString = JsonConvert.SerializeObject(tasks, Formatting.Indented);
             File.WriteAllText(filePath, jsonString);
 
         }
