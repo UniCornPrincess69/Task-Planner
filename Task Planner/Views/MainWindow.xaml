@@ -3,9 +3,21 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Task_Planner"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:Task_Planner.Models"
+        Closing="Window_Closing"
+        
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Task Planner" Height="500" Width="800">
+    <Window.Resources>
+        <ObjectDataProvider x:Key="StatusEnum"
+                            MethodName="GetValues"
+                            ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:TaskStatus"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -13,37 +25,57 @@
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
             <Label Content="Title"/>
-            <TextBox x:Name="Titlebox" Width="150" Margin="0,0,10,0"/>
+            <TextBox x:Name="Titlebox" Width="100" Margin="0,0,10,0"/>
             <Label Content="Deadline"/>
-            <DatePicker x:Name="DeadlinePicker" Width="150" Margin="0,0,10,0"/>
+            <DatePicker x:Name="DeadlinePicker" Width="120" Margin="0,0,10,0"/>
             <Label Content="Priority"/>
-            <ComboBox x:Name="PriorityBox" Width="130" Margin="0,0,10,0">
+            <ComboBox x:Name="PriorityBox" Width="110" Margin="0,0,10,0">
                 <ComboBoxItem Content="Low"/>
                 <ComboBoxItem Content="Medium"/>
                 <ComboBoxItem Content="High"/>
             </ComboBox>
             <Button Content="Add Task" Width="150" Margin="30,0,0,0" Click="AddTask_Click"/>
+            <Button Content="Delete" Width="60" Margin="30,0,0,0" Click="RemoveTask_Click"/>
         </StackPanel>
-        <ListView x:Name="TaskList" Grid.Row="1">
+        <ListView x:Name="TaskList" ItemsSource="{Binding Tasks}" Grid.Row="1">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Status}" Value="NotStarted">
+                            <Setter Property="Background" Value="LightGray"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Status}" Value="InProgress">
+                            <Setter Property="Background" Value="Orange"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Status}" Value="Completed">
+                            <Setter Property="Background" Value="Green"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Status}" Value="OnHold">
+                            <Setter Property="Background" Value="SlateBlue"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Title}" Width="250"/>
-                    <GridViewColumn Header="Deadline" DisplayMemberBinding="{Binding Deadline}" Width="160"/>
-                    <GridViewColumn Header="Priority" DisplayMemberBinding="{Binding Priority}" Width="150"/>
-                    <GridViewColumn Header="Status" Width="160">
+                    <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Title}" Width="100"/>
+                    <GridViewColumn Header="Description" Width="200">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <ComboBox SelectedItem="{Binding Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150">
-                                    <ComboBoxItem Content="NotStarted"/>
-                                    <ComboBoxItem Content="InProgress"/>
-                                    <ComboBoxItem Content="Completed"/>
-                                    <ComboBoxItem Content="OnHold"/>
-                                </ComboBox>
+                                <TextBox Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="180"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Width="50">
-                                <Button Content="Delete" Width="40" Click="RemoveTask_Click"/>
+                    <GridViewColumn Header="Deadline" DisplayMemberBinding="{Binding Deadline}" Width="160"/>
+                    <GridViewColumn Header="Priority" DisplayMemberBinding="{Binding Priority}" Width="100"/>
+                    <GridViewColumn Header="Status" Width="160">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <ComboBox ItemsSource="{Binding Source={StaticResource StatusEnum}}"
+                                          SelectedItem="{Binding Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Width="150"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                 </GridView>
             </ListView.View>

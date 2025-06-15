@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Task_Planner.Models;
+using Task_Planner.Services;
 using Task_Planner.ViewModels;
 
 namespace Task_Planner
@@ -27,6 +28,14 @@ namespace Task_Planner
         public MainWindow()
         {
             InitializeComponent();
+            var loadedTasks = Data_Manager.Load();
+            if(loadedTasks != null)
+            {
+                foreach (var task in loadedTasks)
+                {
+                    viewModel.AddTask(task);
+                }
+            }
             TaskList.ItemsSource = viewModel.Tasks;
         }
 
@@ -65,5 +74,12 @@ namespace Task_Planner
                 MessageBox.Show("Please select a task to remove.");
             }
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Data_Manager.Save(viewModel.Tasks.ToList());
+        }
+
+        
     }
 }
